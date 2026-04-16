@@ -1,0 +1,62 @@
+---
+# ──────────────────────────────────────────────
+# Dotfiles
+# ──────────────────────────────────────────────
+dotfiles_repo: "https://github.com/oromulomartins/dotfiles.git"
+dotfiles_dir: "{{ ansible_env.HOME }}/.dotfiles"
+
+dotfiles_stow_packages:
+  - alacritty
+  - asdf
+  - lvim
+  - p10k
+  - tmux
+  - zsh
+
+# ──────────────────────────────────────────────
+# asdf
+# ──────────────────────────────────────────────
+asdf_version: "v0.14.1"
+asdf_dir: "{{ ansible_env.HOME }}/.asdf"
+
+asdf_plugins:
+  - name: python
+    url: "https://github.com/danhper/asdf-python.git"
+  - name: nodejs
+    url: "https://github.com/asdf-vm/asdf-nodejs.git"
+  - name: rust
+    url: "https://github.com/code-lever/asdf-rust.git"
+  - name: java
+    url: "https://github.com/halcyon/asdf-java.git"
+  - name: neovim
+    url: "https://github.com/richin13/asdf-neovim.git"
+  - name: colima
+    url: "https://github.com/CrouchingMuppet/asdf-colima.git"
+  - name: lima
+    url: "https://github.com/CrouchingMuppet/asdf-lima.git"
+
+asdf_tools:
+  - { name: python,  version: "3.13.1"        }
+  - { name: nodejs,  version: "23.11.0"        }
+  - { name: rust,    version: "1.86.0"         }
+  - { name: java,    version: "openjdk-24.0.1" }
+  - { name: neovim,  version: "0.11.1"         }
+  - { name: colima,  version: "0.8.1"          }
+  - { name: lima,    version: "1.1.1"          }
+
+# ──────────────────────────────────────────────
+# Kubernetes
+# ──────────────────────────────────────────────
+kubectl_version: "1.32.0"
+helm_version:    "3.17.1"
+k9s_version:     "0.32.7"
+
+# ──────────────────────────────────────────────
+# Terraform
+# ──────────────────────────────────────────────
+terraform_version: "1.10.5"
+
+# ──────────────────────────────────────────────
+# Paths
+# ──────────────────────────────────────────────
+local_bin: "{{ ansible_env.HOME }}/.local/bin"
