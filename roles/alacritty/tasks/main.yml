@@ -1,0 +1,10 @@
+---
+# Alacritty is only installed on Arch Linux (WSL).
+# On macOS, iTerm2 is used instead (see roles/macos_apps).
+
+- name: alacritty | Install Alacritty (Arch)
+  community.general.pacman:
+    name: alacritty
+    state: present
+  become: true
+  when: ansible_distribution == 'Archlinux'

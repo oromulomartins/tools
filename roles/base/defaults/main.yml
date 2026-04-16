@@ -1,0 +1,23 @@
+---
+base_packages_macos:
+  - git
+  - curl
+  - wget
+  - make
+  - unzip
+  - tree
+  - ncdu
+  - vim
+  - stow
+
+base_packages_arch:
+  - git
+  - curl
+  - wget
+  - make
+  - unzip
+  - tree
+  - ncdu
+  - vim
+  - stow
+  - base-devel

@@ -1,0 +1,26 @@
+---
+- name: tmux | Install tmux (macOS)
+  community.general.homebrew:
+    name: tmux
+    state: present
+  when: ansible_os_family == 'Darwin'
+
+- name: tmux | Install tmux (Arch)
+  community.general.pacman:
+    name: tmux
+    state: present
+  become: true
+  when: ansible_distribution == 'Archlinux'
+
+- name: tmux | Check if TPM (Tmux Plugin Manager) is installed
+  ansible.builtin.stat:
+    path: "{{ ansible_env.HOME }}/.tmux/plugins/tpm"
+  register: tpm_stat
+
+- name: tmux | Install TPM
+  ansible.builtin.git:
+    repo: "https://github.com/tmux-plugins/tpm.git"
+    dest: "{{ ansible_env.HOME }}/.tmux/plugins/tpm"
+    version: HEAD
+    depth: 1
+  when: not tpm_stat.stat.exists

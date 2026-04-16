@@ -1,0 +1,85 @@
+---
+# ─── Install asdf ─────────────────────────────────────────────────────────────
+
+- name: asdf | Install asdf via Homebrew (macOS)
+  community.general.homebrew:
+    name: asdf
+    state: present
+  when: ansible_os_family == 'Darwin'
+
+- name: asdf | Check if asdf is installed (Linux)
+  ansible.builtin.stat:
+    path: "{{ asdf_dir }}/asdf.sh"
+  register: asdf_stat
+  when: ansible_os_family != 'Darwin'
+
+- name: asdf | Clone asdf (Linux)
+  ansible.builtin.git:
+    repo: "https://github.com/asdf-vm/asdf.git"
+    dest: "{{ asdf_dir }}"
+    version: "{{ asdf_version }}"
+    depth: 1
+  when:
+    - ansible_os_family != 'Darwin'
+    - not asdf_stat.stat.exists
+
+# ─── asdf environment for subsequent tasks ────────────────────────────────────
+
+- name: asdf | Set asdf environment (macOS - Apple Silicon)
+  ansible.builtin.set_fact:
+    asdf_env:
+      PATH: "/opt/homebrew/opt/asdf/libexec/bin:{{ ansible_env.HOME }}/.asdf/shims:{{ ansible_env.PATH }}"
+      ASDF_DIR: "/opt/homebrew/opt/asdf/libexec"
+  when:
+    - ansible_os_family == 'Darwin'
+    - ansible_architecture == 'aarch64'
+
+- name: asdf | Set asdf environment (macOS - Intel)
+  ansible.builtin.set_fact:
+    asdf_env:
+      PATH: "/usr/local/opt/asdf/libexec/bin:{{ ansible_env.HOME }}/.asdf/shims:{{ ansible_env.PATH }}"
+      ASDF_DIR: "/usr/local/opt/asdf/libexec"
+  when:
+    - ansible_os_family == 'Darwin'
+    - ansible_architecture == 'x86_64'
+
+- name: asdf | Set asdf environment (Linux)
+  ansible.builtin.set_fact:
+    asdf_env:
+      PATH: "{{ asdf_dir }}/bin:{{ asdf_dir }}/shims:{{ ansible_env.PATH }}"
+      ASDF_DIR: "{{ asdf_dir }}"
+  when: ansible_os_family != 'Darwin'
+
+# ─── Install plugins ──────────────────────────────────────────────────────────
+
+- name: asdf | List installed plugins
+  ansible.builtin.command: asdf plugin list
+  register: asdf_installed_plugins
+  failed_when: false
+  changed_when: false
+  environment: "{{ asdf_env }}"
+
+- name: asdf | Add missing plugins
+  ansible.builtin.command: "asdf plugin add {{ item.name }} {{ item.url }}"
+  loop: "{{ asdf_plugins }}"
+  when: item.name not in asdf_installed_plugins.stdout_lines
+  changed_when: true
+  environment: "{{ asdf_env }}"
+
+# ─── Install tool versions ────────────────────────────────────────────────────
+
+- name: asdf | Install tool versions
+  ansible.builtin.command: "asdf install {{ item.name }} {{ item.version }}"
+  loop: "{{ asdf_tools }}"
+  register: asdf_install_result
+  changed_when: "'already installed' not in asdf_install_result.stderr"
+  failed_when: >
+    asdf_install_result.rc != 0 and
+    'already installed' not in asdf_install_result.stderr
+  environment: "{{ asdf_env }}"
+
+- name: asdf | Set global tool versions
+  ansible.builtin.command: "asdf global {{ item.name }} {{ item.version }}"
+  loop: "{{ asdf_tools }}"
+  changed_when: true
+  environment: "{{ asdf_env }}"

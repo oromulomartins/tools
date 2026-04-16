@@ -1,0 +1,33 @@
+---
+- name: fonts | Set font directory (macOS)
+  ansible.builtin.set_fact:
+    font_dir: "{{ ansible_env.HOME }}/Library/Fonts"
+  when: ansible_os_family == 'Darwin'
+
+- name: fonts | Set font directory (Linux)
+  ansible.builtin.set_fact:
+    font_dir: "{{ ansible_env.HOME }}/.local/share/fonts"
+  when: ansible_os_family != 'Darwin'
+
+- name: fonts | Ensure font directory exists
+  ansible.builtin.file:
+    path: "{{ font_dir }}"
+    state: directory
+    mode: "0755"
+
+- name: fonts | Download MesloLGS NF fonts
+  ansible.builtin.get_url:
+    url: "https://github.com/romkatv/powerlevel10k-media/raw/master/{{ item | urlencode }}"
+    dest: "{{ font_dir }}/{{ item }}"
+    mode: "0644"
+    force: false
+  loop:
+    - "MesloLGS NF Regular.ttf"
+    - "MesloLGS NF Bold.ttf"
+    - "MesloLGS NF Italic.ttf"
+    - "MesloLGS NF Bold Italic.ttf"
+
+- name: fonts | Refresh font cache (Linux)
+  ansible.builtin.command: fc-cache -fv
+  changed_when: false
+  when: ansible_os_family != 'Darwin'

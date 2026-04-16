@@ -1,0 +1,6 @@
+---
+# Override in group_vars/all.yml or host_vars to change versions
+asdf_version: "v0.14.1"
+asdf_dir: "{{ ansible_env.HOME }}/.asdf"
+asdf_plugins: []
+asdf_tools: []

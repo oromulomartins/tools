@@ -1,0 +1,44 @@
+---
+# NOTE: LunarVim was archived in March 2024. The last stable branch is
+# release-1.4/neovim-0.9. It may have compatibility issues with Neovim 0.11+.
+# Config is managed via dotfiles (lvim/ → ~/.config/lvim via GNU Stow).
+
+- name: lunarvim | Install dependencies (macOS)
+  community.general.homebrew:
+    name:
+      - lazygit
+      - ripgrep
+      - fd
+    state: present
+  when: ansible_os_family == 'Darwin'
+
+- name: lunarvim | Install dependencies (Arch)
+  community.general.pacman:
+    name:
+      - lazygit
+      - ripgrep
+      - fd
+    state: present
+  become: true
+  when: ansible_distribution == 'Archlinux'
+
+- name: lunarvim | Set asdf shims in PATH
+  ansible.builtin.set_fact:
+    lvim_env:
+      PATH: >-
+        {{ ansible_env.HOME }}/.asdf/shims:{{ ansible_env.HOME }}/.asdf/bin:{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.PATH }}
+      LV_BRANCH: "release-1.4/neovim-0.9"
+
+- name: lunarvim | Check if lvim binary exists
+  ansible.builtin.stat:
+    path: "{{ ansible_env.HOME }}/.local/bin/lvim"
+  register: lvim_stat
+
+- name: lunarvim | Install LunarVim
+  ansible.builtin.shell:
+    cmd: >
+      LV_BRANCH='release-1.4/neovim-0.9'
+      bash <(curl -s https://raw.githubusercontent.com/LunarVim/LunarVim/release-1.4/neovim-0.9/utils/installer/install.sh) --no-install-dependencies
+  environment: "{{ lvim_env }}"
+  when: not lvim_stat.stat.exists
+  changed_when: true

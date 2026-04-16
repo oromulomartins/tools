@@ -1,0 +1,43 @@
+---
+- name: base | Install base packages (macOS)
+  community.general.homebrew:
+    name: "{{ base_packages_macos }}"
+    state: present
+    update_homebrew: false
+  when: ansible_os_family == 'Darwin'
+
+- name: base | Update pacman cache (Arch)
+  ansible.builtin.command: pacman -Sy
+  become: true
+  changed_when: false
+  when: ansible_distribution == 'Archlinux'
+
+- name: base | Install base packages (Arch)
+  community.general.pacman:
+    name: "{{ base_packages_arch }}"
+    state: present
+  become: true
+  when: ansible_distribution == 'Archlinux'
+
+- name: base | Install yay AUR helper (Arch)
+  when: ansible_distribution == 'Archlinux'
+  block:
+    - name: base | Check if yay is installed
+      ansible.builtin.command: which yay
+      register: yay_check
+      failed_when: false
+      changed_when: false
+
+    - name: base | Clone yay from AUR
+      ansible.builtin.git:
+        repo: "https://aur.archlinux.org/yay.git"
+        dest: /tmp/yay
+        version: HEAD
+      when: yay_check.rc != 0
+
+    - name: base | Build and install yay
+      ansible.builtin.command:
+        cmd: makepkg -si --noconfirm
+        chdir: /tmp/yay
+      when: yay_check.rc != 0
+      changed_when: true
