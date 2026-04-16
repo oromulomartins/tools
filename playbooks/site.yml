@@ -1,0 +1,75 @@
+---
+# site.yml — Full workstation setup
+# Runs all roles in the correct order for both macOS and Arch Linux (WSL)
+- name: Full workstation setup
+  hosts: localhost
+  connection: local
+  gather_facts: true
+  become: false
+
+  pre_tasks:
+    - name: Ensure ~/.local/bin exists
+      ansible.builtin.file:
+        path: "{{ ansible_env.HOME }}/.local/bin"
+        state: directory
+        mode: "0755"
+
+  tasks:
+    - name: Install Homebrew
+      ansible.builtin.include_role:
+        name: homebrew
+      when: ansible_os_family == 'Darwin'
+
+    - name: Install base packages
+      ansible.builtin.include_role:
+        name: base
+
+    - name: Install Zsh
+      ansible.builtin.include_role:
+        name: zsh
+
+    - name: Install fonts
+      ansible.builtin.include_role:
+        name: fonts
+
+    - name: Install asdf and language runtimes
+      ansible.builtin.include_role:
+        name: asdf
+
+    - name: Install tmux
+      ansible.builtin.include_role:
+        name: tmux
+
+    - name: Install LunarVim
+      ansible.builtin.include_role:
+        name: lunarvim
+
+    - name: Install Alacritty
+      ansible.builtin.include_role:
+        name: alacritty
+      when: ansible_distribution == 'Archlinux'
+
+    - name: Install CLI tools
+      ansible.builtin.include_role:
+        name: cli_tools
+
+    - name: Install Kubernetes tools
+      ansible.builtin.include_role:
+        name: kubernetes
+
+    - name: Install Terraform
+      ansible.builtin.include_role:
+        name: terraform
+
+    - name: Install AWS CLI
+      ansible.builtin.include_role:
+        name: aws
+
+    - name: Install Docker
+      ansible.builtin.include_role:
+        name: docker
+
+    - name: Install macOS GUI apps
+      ansible.builtin.include_role:
+        name: macos_apps
+      when: ansible_os_family == 'Darwin'

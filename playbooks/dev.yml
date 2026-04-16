@@ -1,0 +1,34 @@
+---
+- name: Dev environment setup
+  hosts: localhost
+  connection: local
+  gather_facts: true
+  become: false
+
+  pre_tasks:
+    - name: Ensure ~/.local/bin exists
+      ansible.builtin.file:
+        path: "{{ ansible_env.HOME }}/.local/bin"
+        state: directory
+        mode: "0755"
+
+  tasks:
+    - name: Install Zsh
+      ansible.builtin.include_role:
+        name: zsh
+
+    - name: Install fonts
+      ansible.builtin.include_role:
+        name: fonts
+
+    - name: Install asdf and language runtimes
+      ansible.builtin.include_role:
+        name: asdf
+
+    - name: Install tmux
+      ansible.builtin.include_role:
+        name: tmux
+
+    - name: Install LunarVim
+      ansible.builtin.include_role:
+        name: lunarvim

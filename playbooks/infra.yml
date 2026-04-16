@@ -1,0 +1,15 @@
+---
+- name: Infra tools setup
+  hosts: localhost
+  connection: local
+  gather_facts: true
+  become: false
+
+  tasks:
+    - name: Install Terraform
+      ansible.builtin.include_role:
+        name: terraform
+
+    - name: Install AWS CLI
+      ansible.builtin.include_role:
+        name: aws

@@ -1,0 +1,20 @@
+---
+- name: macOS GUI apps setup
+  hosts: localhost
+  connection: local
+  gather_facts: true
+  become: false
+
+  tasks:
+    - name: Assert macOS
+      ansible.builtin.assert:
+        that: ansible_os_family == 'Darwin'
+        fail_msg: "This playbook only runs on macOS."
+
+    - name: Install Homebrew
+      ansible.builtin.include_role:
+        name: homebrew
+
+    - name: Install macOS GUI apps
+      ansible.builtin.include_role:
+        name: macos_apps
