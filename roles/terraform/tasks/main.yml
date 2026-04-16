@@ -1,0 +1,29 @@
+---
+# ─── macOS ────────────────────────────────────────────────────────────────────
+
+- name: terraform | Install Terraform (macOS)
+  community.general.homebrew:
+    name: hashicorp/tap/terraform
+    state: present
+    update_homebrew: false
+  when: ansible_os_family == 'Darwin'
+
+# ─── Arch Linux ───────────────────────────────────────────────────────────────
+
+- name: terraform | Install Terraform (Arch)
+  community.general.pacman:
+    name: terraform
+    state: present
+  become: true
+  when: ansible_distribution == 'Archlinux'
+
+# ─── Verify ───────────────────────────────────────────────────────────────────
+
+- name: terraform | Verify installation
+  ansible.builtin.command: terraform version
+  register: tf_version
+  changed_when: false
+
+- name: terraform | Show version
+  ansible.builtin.debug:
+    msg: "{{ tf_version.stdout_lines[0] }}"

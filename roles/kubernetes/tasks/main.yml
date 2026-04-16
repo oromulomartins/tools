@@ -1,0 +1,44 @@
+---
+# ─── macOS (Homebrew) ─────────────────────────────────────────────────────────
+
+- name: kubernetes | Install k8s tools (macOS)
+  community.general.homebrew:
+    name:
+      - kubectl
+      - kubectx
+      - k9s
+      - helm
+    state: present
+    update_homebrew: false
+  when: ansible_os_family == 'Darwin'
+
+# ─── Arch Linux ───────────────────────────────────────────────────────────────
+
+- name: kubernetes | Install k8s tools from official repos (Arch)
+  community.general.pacman:
+    name:
+      - kubectl
+      - kubectx
+      - k9s
+      - helm
+    state: present
+  become: true
+  when: ansible_distribution == 'Archlinux'
+
+# ─── kubectl bash/zsh completion ──────────────────────────────────────────────
+
+- name: kubernetes | Ensure completion directory exists
+  ansible.builtin.file:
+    path: "{{ ansible_env.HOME }}/.zsh/completions"
+    state: directory
+    mode: "0755"
+
+- name: kubernetes | Generate kubectl completion
+  ansible.builtin.shell:
+    cmd: kubectl completion zsh > "{{ ansible_env.HOME }}/.zsh/completions/_kubectl"
+  changed_when: false
+
+- name: kubernetes | Generate helm completion
+  ansible.builtin.shell:
+    cmd: helm completion zsh > "{{ ansible_env.HOME }}/.zsh/completions/_helm"
+  changed_when: false

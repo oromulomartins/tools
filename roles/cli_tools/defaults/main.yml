@@ -1,0 +1,35 @@
+---
+cli_packages_macos:
+  - bat
+  - ripgrep
+  - jq
+  - yq
+  - lazygit
+  - gh
+  - git-delta
+  - eza
+  - fzf
+  - zoxide
+  - btop
+  - httpie
+  - dust
+  - curlie
+
+cli_packages_arch:
+  - bat
+  - ripgrep
+  - jq
+  - lazygit
+  - git-delta
+  - eza
+  - fzf
+  - zoxide
+  - btop
+  - python-httpie
+  - github-cli
+
+# Packages only available in AUR
+cli_packages_arch_aur:
+  - yq
+  - du-dust
+  - curlie

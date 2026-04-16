@@ -1,0 +1,35 @@
+---
+- name: macos_apps | Install GUI apps via brew cask
+  community.general.homebrew_cask:
+    name: "{{ item }}"
+    state: present
+    accept_external_apps: true
+  loop:
+    - iterm2
+    - slack
+    - intellij-idea-ce
+    - google-chrome
+    - dbeaver-community
+    - docker
+
+- name: macos_apps | Check if Xcode CLI tools are installed
+  ansible.builtin.command: xcode-select -p
+  register: xcode_select_check
+  failed_when: false
+  changed_when: false
+
+- name: macos_apps | Install Xcode CLI tools
+  ansible.builtin.command: xcode-select --install
+  when: xcode_select_check.rc != 0
+  register: xcode_install
+  failed_when: >
+    xcode_install.rc != 0 and
+    'already installed' not in (xcode_install.stderr | default(''))
+  changed_when: xcode_install.rc == 0
+
+- name: macos_apps | Xcode note
+  ansible.builtin.debug:
+    msg: >
+      Xcode CLI tools installed. Full Xcode IDE must be installed manually
+      from the App Store: https://apps.apple.com/app/xcode/id497799835
+  when: xcode_select_check.rc != 0

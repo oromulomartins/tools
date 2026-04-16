@@ -1,0 +1,42 @@
+---
+# macOS → Docker Desktop (via brew cask, see roles/macos_apps)
+# Arch WSL → Docker Engine + Compose plugin + Colima via asdf
+
+# ─── Arch Linux ───────────────────────────────────────────────────────────────
+
+- name: docker | Install Docker Engine and Compose plugin (Arch)
+  community.general.pacman:
+    name:
+      - docker
+      - docker-compose
+    state: present
+  become: true
+  when: ansible_distribution == 'Archlinux'
+
+- name: docker | Enable and start Docker service (Arch)
+  ansible.builtin.systemd:
+    name: docker
+    enabled: true
+    state: started
+  become: true
+  when:
+    - ansible_distribution == 'Archlinux'
+    - ansible_kernel is not search('microsoft')  # skip in WSL (no systemd by default)
+
+- name: docker | Add user to docker group (Arch)
+  ansible.builtin.user:
+    name: "{{ ansible_env.USER }}"
+    groups: docker
+    append: true
+  become: true
+  when: ansible_distribution == 'Archlinux'
+
+- name: docker | WSL systemd notice
+  ansible.builtin.debug:
+    msg: >
+      Running in WSL. Docker service was not started automatically.
+      Ensure systemd is enabled in /etc/wsl.conf or start Docker manually:
+      sudo systemctl enable --now docker
+  when:
+    - ansible_distribution == 'Archlinux'
+    - ansible_kernel is search('microsoft')

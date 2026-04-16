@@ -1,0 +1,29 @@
+---
+# ─── macOS ────────────────────────────────────────────────────────────────────
+
+- name: aws | Install AWS CLI v2 (macOS)
+  community.general.homebrew:
+    name: awscli
+    state: present
+    update_homebrew: false
+  when: ansible_os_family == 'Darwin'
+
+# ─── Arch Linux ───────────────────────────────────────────────────────────────
+
+- name: aws | Install AWS CLI v2 from AUR (Arch)
+  community.general.aur:
+    name: aws-cli-v2
+    use: yay
+    state: present
+  when: ansible_distribution == 'Archlinux'
+
+# ─── Verify ───────────────────────────────────────────────────────────────────
+
+- name: aws | Verify installation
+  ansible.builtin.command: aws --version
+  register: aws_version
+  changed_when: false
+
+- name: aws | Show version
+  ansible.builtin.debug:
+    msg: "{{ aws_version.stdout }}"

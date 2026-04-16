@@ -1,0 +1,4 @@
+---
+kubectl_version: "1.32.0"
+helm_version:    "3.17.1"
+k9s_version:     "0.32.7"
