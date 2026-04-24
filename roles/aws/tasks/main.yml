@@ -10,10 +10,11 @@
 
 # ─── Arch Linux ───────────────────────────────────────────────────────────────
 
-- name: aws | Install AWS CLI v2 from AUR (Arch)
-  ansible.builtin.command: "yay -S --noconfirm --needed aws-cli-v2"
-  register: yay_aws_result
-  changed_when: "'nothing to do' not in yay_aws_result.stdout | lower"
+- name: aws | Install AWS CLI v2 (Arch)
+  community.general.pacman:
+    name: aws-cli-v2
+    state: present
+  become: true
   when: ansible_distribution == 'Archlinux'
 
 # ─── Verify ───────────────────────────────────────────────────────────────────
