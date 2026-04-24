@@ -31,12 +31,26 @@ else
 fi
 
 # ─── Apply stow ───────────────────────────────────────────────────────────────
+# Back up any real files that would conflict with stow symlinks
+backup_conflicts() {
+  local pkg="$1"
+  while IFS= read -r -d '' file; do
+    relative="${file#"$DOTFILES_DIR/$pkg/"}"
+    target="$HOME/$relative"
+    if [ -e "$target" ] && [ ! -L "$target" ]; then
+      warning "  Backing up $target -> $target.bak"
+      mv "$target" "$target.bak"
+    fi
+  done < <(find "$DOTFILES_DIR/$pkg" -type f -print0)
+}
+
 info "Applying GNU Stow..."
 cd "$DOTFILES_DIR"
 
 for pkg in "${STOW_PACKAGES[@]}"; do
   if [ -d "$pkg" ]; then
     info "  stow $pkg"
+    backup_conflicts "$pkg"
     stow --restow "$pkg"
   else
     warning "  Package '$pkg' not found in dotfiles, skipping."
