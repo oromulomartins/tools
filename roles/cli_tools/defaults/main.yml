@@ -19,17 +19,17 @@ cli_packages_arch:
   - bat
   - ripgrep
   - jq
+  - yq
   - lazygit
   - git-delta
   - eza
   - fzf
   - zoxide
   - btop
-  - python-httpie
+  - httpie
+  - curlie
   - github-cli
 
 # Packages only available in AUR
 cli_packages_arch_aur:
-  - yq
   - du-dust
-  - curlie
