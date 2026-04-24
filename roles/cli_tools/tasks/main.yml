@@ -18,8 +18,7 @@
   when: ansible_distribution == 'Archlinux'
 
 - name: cli_tools | Install CLI tools from AUR (Arch)
-  community.general.aur:
-    name: "{{ cli_packages_arch_aur }}"
-    use: yay
-    state: present
+  ansible.builtin.command: "yay -S --noconfirm --needed {{ cli_packages_arch_aur | join(' ') }}"
+  register: yay_cli_result
+  changed_when: "'nothing to do' not in yay_cli_result.stdout | lower"
   when: ansible_distribution == 'Archlinux'
