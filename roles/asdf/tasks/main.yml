@@ -79,7 +79,15 @@
   environment: "{{ asdf_env }}"
 
 - name: asdf | Set global tool versions
-  ansible.builtin.command: "asdf global {{ item.name }} {{ item.version }}"
+  ansible.builtin.shell: |
+    current=$(asdf current {{ item.name }} 2>/dev/null | awk '{print $2}')
+    if [ "$current" = "{{ item.version }}" ]; then
+      echo "ok"
+    else
+      asdf global {{ item.name }} {{ item.version }}
+      echo "changed"
+    fi
   loop: "{{ asdf_tools }}"
-  changed_when: true
+  register: asdf_global_result
+  changed_when: "'changed' in asdf_global_result.stdout"
   environment: "{{ asdf_env }}"
